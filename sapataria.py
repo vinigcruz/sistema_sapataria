@@ -1,4 +1,9 @@
-from sapatos import Sapato
+import random  # módulo de números aleatórios
+
+# Função auxiliar para gerar estoque aleatório
+def gerar_estoque_aleatorio(min_estoque=1, max_estoque=20):
+    return random.randint(min_estoque, max_estoque)
+
 
 class Sapataria:
     def __init__(self):
@@ -20,22 +25,23 @@ class Sapataria:
         except ValueError:
             raise ValueError("Estoque inválido. Use inteiro (ex.: 5).")
 
-        prod = Sapato(modelo.strip(), marca.strip(), tamanho, float(preco), int(estoque))
+        prod = Sapato(modelo.strip(), marca.strip(), tamanho, preco, estoque)
         self.produtos.append(prod)
         return prod
 
-    def listar(self) -> str:
+    def listar(self, formatador=None) -> str:
         if not self.produtos:
             return "Nenhum produto cadastrado."
-        return "\n".join(f"[{i}] {p}" for i, p in enumerate(self.produtos))
 
-    def obter_por_indice(self, indice_str: str) -> Sapato:
-        try:
-            idx = int(indice_str)
-        except ValueError:
-            raise ValueError("Índice inválido. Use número inteiro.")
+        if formatador is None:
+            # Função padrão que retorna o __str__ do produto
+            formatador = lambda sapato: str(sapato)
 
-        if idx < 0 or idx >= len(self.produtos):
-            raise IndexError("Índice fora do intervalo.")
+        def listar_recursivo(lista, idx=0):
+            if idx == len(lista):
+                return ""
+            linha = f"[{idx}] {formatador(lista[idx])}"
+            resto = listar_recursivo(lista, idx + 1)  # chamada recursiva
+            return linha + ("\n" + resto if resto else "")
 
-        return self.produtos[idx]
+        return listar_recursivo(self.produtos)
